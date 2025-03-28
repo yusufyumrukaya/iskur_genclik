@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Çakışan Ders Ekleme Dilekçesi</title>
+</head>
+<body>
+    <h1>Çakışan Ders Ekleme Dilekçesi</h1>
+    <form id="dersForm" enctype="multipart/form-data">
+        <fieldset>
+            <legend>Kişisel Bilgiler</legend>
+            <label for="adSoyad">Ad Soyad:</label>
+            <input type="text" id="adSoyad" name="adSoyad" required><br><br>
+
+            <label for="ogrenciNo">Öğrenci Numarası:</label>
+            <input type="text" id="ogrenciNo" name="ogrenciNo" required><br><br>
+
+            <label for="cepTelefonu">Cep Telefonu:</label>
+            <input type="tel" id="cepTelefonu" name="cepTelefonu" required><br><br>
+
+            <label for="eposta">E-posta:</label>
+            <input type="email" id="eposta" name="eposta" required><br><br>
+
+            <label for="egitimYili">Eğitim-Öğretim Yılı:</label>
+            <input type="text" id="egitimYili" name="egitimYili" required><br><br>
+
+            <label for="yariyil">Yarıyıl:</label>
+            <select id="yariyil" name="yariyil" required>
+                <option value="">Seçiniz</option>
+                <option value="Güz">Güz</option>
+                <option value="Bahar">Bahar</option>
+            </select><br><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Dosya Yükleme</legend>
+            <label for="transkript">Transkript:</label>
+            <input type="file" id="transkript" name="transkript" accept=".pdf,.doc,.docx" required><br><br>
+
+            <label for="obsDersProgrami">OBS Ders Programı:</label>
+            <input type="file" id="obsDersProgrami" name="obsDersProgrami" accept=".pdf,.doc,.docx" required><br><br>
+        </fieldset>
+
+        <fieldset>
+            <legend>Ders Bilgileri</legend>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kodu</th>
+                        <th>Adı</th>
+                        <th>Kodu</th>
+                        <th>Adı</th>
+                        <th>Grubu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" name="dersler[0][kodu1]"></td>
+                        <td><input type="text" name="dersler[0][adi1]"></td>
+                        <td><input type="text" name="dersler[0][kodu2]"></td>
+                        <td><input type="text" name="dersler[0][adi2]"></td>
+                        <td><input type="text" name="dersler[0][grubu]"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" name="dersler[1][kodu1]"></td>
+                        <td><input type="text" name="dersler[1][adi1]"></td>
+                        <td><input type="text" name="dersler[1][kodu2]"></td>
+                        <td><input type="text" name="dersler[1][adi2]"></td>
+                        <td><input type="text" name="dersler[1][grubu]"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" name="dersler[2][kodu1]"></td>
+                        <td><input type="text" name="dersler[2][adi1]"></td>
+                        <td><input type="text" name="dersler[2][kodu2]"></td>
+                        <td><input type="text" name="dersler[2][adi2]"></td>
+                        <td><input type="text" name="dersler[2][grubu]"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+
+        <button type="submit">Gönder</button>
+    </form>
+
+    <script>
+    document.getElementById('dersForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Formun otomatik gönderilmesini engelle
+
+        const formData = new FormData(this);
+
+        fetch('/form-gonder', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.blob(); // Dosyayı blob olarak al
+            }
+            throw new Error('Bir hata oluştu');
+        })
+        .then(blob => {
+            // Dosyayı indirme bağlantısı oluştur
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Dilekce_a4_formati.jpg';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        })
+        .catch(error => {
+            console.error('Hata:', error);
+        });
+    });
+</script>
+</body>
+</html>
