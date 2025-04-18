@@ -1,0 +1,173 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+</head>
+<body class="bg-skyBlue">
+<form id="mainForm" method="POST" action="/form-gonder">
+    <div class="outer flex justify-center min-h-screen">
+        <div class="card max-w-[100rem] flex flex-col  p-16">
+            <div class="logo">
+                <img src="" alt="">
+            </div> 
+            <div class="main flex flex-col mt-8 bg-white/44 rounded-xl w-full min-w-[22rem]">
+                <div class="header bg-white rounded-t-xl border-b-4 border-headingBlue px-12">
+                    <h1 class="lg:text-4xl md:text-2xl  text-lg text-headingBlue font-bold  text-center py-4 ">
+                        YILDIZ TEKNİK ÜNİVERSİTESİ FEN-EDEBİYAT FAKÜLTESİ ÇAKIŞAN DERS EKLEME DİLEKÇESİ</h1>
+                </div>
+                <div class="form flex flex-col  md:py-12 items-center ">
+                    <div class="flex flex-col items-center space-y-4 p-2 w-full  max-w-100 ">
+                        <div class="ad-soyad relative bg-white w-full border-b-2 border-underlineColor h-12 flex items-center rounded-t-lg">
+                            <input id="ad-soyad" name="adSoyad" type="text" placeholder="Ad Soyad" class="w-full peer md:text-lg text-base outline-0 px-2 mt-2 placeholder-transparent">
+                            <label for="ad-soyad" class="absolute text-textColor left-1 top-0 text-xs peer-placeholder-shown:left-3 peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:text-placeholder peer-focus:left-1 peer-focus:top-0 peer-focus:text-xs peer-focus:text-textColor transition-all duration-200">Ad Soyad</label>
+                        </div>
+                        <div class="ogrenci-no relative rounded-t-lg  w-full bg-white h-12  border-b-2 border-underlineColor flex items-center">
+                            <input id="ogrenci-no" name="ogrenciNo" type="text" placeholder="Öğrenci Numarası" class="w-full peer md:text-lg text-base outline-0 px-2 mt-2 placeholder-transparent">
+                            <label for="ogrenci-no" class="absolute text-textColor left-1 top-0 text-xs peer-placeholder-shown:left-3 peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:text-placeholder peer-focus:left-1 peer-focus:top-0 peer-focus:text-xs peer-focus:text-textColor transition-all duration-200">Öğrenci Numarası</label>
+                        </div>
+                        <div class="bolum border-underlineColor relative rounded-t-lg w-full bg-white h-12  flex border-b-2 items-center">
+                            <input id="bolum" name="bolum" type="text" placeholder="Bölüm" class="w-full peer md:text-lg text-base outline-0 px-2 mt-2 placeholder-transparent">
+                            <label for="bolum" class="absolute text-textColor left-1 top-0 text-xs peer-placeholder-shown:left-3 peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:text-placeholder peer-focus:left-1 peer-focus:top-0 peer-focus:text-xs peer-focus:text-textColor transition-all duration-200">Bölüm</label>
+                        </div>
+                        <div class="cep-no relative border-underlineColor rounded-t-lg w-full bg-white h-12  flex border-b-2 items-center">
+                            <input id="cep-no" name="cepTelefonu" type="text" placeholder="Cep Telefonu" class="w-full peer md:text-lg text-base outline-0 px-2 mt-2 placeholder-transparent">
+                            <label for="cep-no" class="absolute text-textColor left-1 top-0 text-xs peer-placeholder-shown:left-3 peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:text-placeholder peer-focus:left-1 peer-focus:top-0 peer-focus:text-xs peer-focus:text-textColor transition-all duration-200">Cep Telefonu</label>
+                        </div>
+                        <div class="e-posta relative rounded-t-lg border-underlineColor w-full bg-white h-12  flex border-b-2 items-center">
+                            <input id="eposta" name="eposta" type="text" placeholder="E-Posta" class="w-full peer md:text-lg text-base outline-0 px-2 mt-2 placeholder-transparent">
+                            <label for="eposta" class="absolute text-textColor left-1 top-0 text-xs peer-placeholder-shown:left-3 peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:text-placeholder peer-focus:left-1 peer-focus:top-0 peer-focus:text-xs peer-focus:text-textColor transition-all duration-200">E-posta</label>
+                        </div>
+                        <div class="flex flex-col md:flex-row  space-x-0 space-y-4 lg:space-y-0 md:space-x-12  w-full ">
+                            <div class="ogretim-yili relative rounded-t-lg bg-white  w-full h-12 border-underlineColor border-b-2 flex items-center ">
+                                <input id="ogretim-yili" name="egitimYili" type="text" placeholder="Öğretim Yılı" class="peer mt-2 placeholder-transparent w-full  md:text-lg text-base outline-0 px-2">
+                                <label for="ogretim-yili" class="absolute text-textColor left-1 top-0 text-xs peer-placeholder-shown:left-3 peer-placeholder-shown:top-3 peer-placeholder-shown:text-lg peer-placeholder-shown:text-placeholder peer-focus:left-1 peer-focus:top-0 peer-focus:text-xs peer-focus:text-textColor transition-all duration-200">Öğretim Yılı</label>
+                            </div>
+                            <div class="donem relative border-underlineColor bg-white w-full rounded-t-lg h-12 flex border-b-2 items-center">
+                                <select id="donem" name="yariyil" class="w-full peer md:text-lg text-base outline-0 px-2 mt-2 bg-white text-placeholder">
+                                    <option value="" disabled selected hidden>Dönem</option>
+                                    <option value="Güz">Güz</option>
+                                    <option value="Bahar">Bahar</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p class="text-textColor text-xs">*Lütfen daha önce almış olduğunuz ders ile ilgili eğitim öğretim yılı ve dönem bilgilerini giriniz</p>
+                    </div>
+                    <div id="ders-ekle" class="ders-ekle max-w-100  flex flex-col items-center p-2 w-full">
+                        <div class="header w-full  bg-white h-12 flex justify-center items-center rounded-t-lg  border-b-2 border-headingBlue">
+                            <h2 class="text-headingBlue font-semibold md:text-xl text-lg ">OBS'den Seçilen Ders</h2>
+                        </div>
+                        <div class="flex items-center w-full h-10 bg-white border-b-1 border-headingBlue ">
+                            <div class="kod border-r tracking-tighter flex h-full items-center  px-2 md:tracking-normal w-3/10 ">
+                                <h3>Ders Kodu</h3>
+                            </div>
+                            <div class="adi px-2  flex items-center w-3/5 h-full  ">
+                                <h3 class="w-full ">Ders Adı</h3>
+                            </div>
+                        </div>
+                        <div class="eklenen-ders flex border rounded-lg mt-4 border-textColor items-center h-10 bg-white">
+                            <div class="ders-kodu-input flex items-center border-r border-textColor h-full w-3/10  px-2">
+                                <input type="text" name="dersler[1][kodu1]" placeholder="0000000" maxlength="7" class="w-full outline-0 placeholder-textColor">
+                            </div>
+                            <div class="ders-adi-input flex items-center w-3/5 px-2 h-full">
+                                <input type="text" name="dersler[1][adi1]" placeholder="Ders Adı" maxlength="40" class="w-full placeholder-textColor outline-0">
+                            </div>
+                            <button class="ders-cikar cursor-pointer p-2">
+                                <img src="assets/icon/Vector.png" alt="">
+                            </button>
+                        </div>
+                        <div id="ekle" class="ders-ekle-buton flex px-4 border py-2 mt-4 rounded-full bg-white text-headingBlue  justify-center cursor-pointer hover:bg-white/10 duration-200">
+                            <p>Ders Ekle</p>
+                            <img src="" alt="">
+                        </div>
+                    </div>
+                    <div class="ders-sil max-w-100  flex flex-col items-center  p-2 w-full">
+                        <div class="header w-full  bg-white h-12 flex justify-center items-center rounded-t-lg  border-b-2 border-headingBlue">
+                            <h2 class="text-headingBlue font-semibold md:text-xl text-lg ">Çakışma Nedeniyle Eklenecek Ders</h2>
+                        </div>
+                        <div class="flex items-center w-full  h-10 bg-white border-b-1 border-headingBlue">
+                            <div class="kod border-r tracking-tighter flex h-full items-center px-2 md:tracking-normal text-sm md:text-base  w-3/10 ">
+                                <h3>Ders Kodu</h3>
+                            </div>
+                            <div class="adi px-2  flex items-center w-3/5 h-full  ">
+                                <h3 class="w-full ">Ders Adı</h3>
+                            </div>
+                            <div class="grup px-2 h-full flex items-center w-3/10 border-l ">
+                                <h3>Grup</h3>
+                            </div>
+                        </div>
+                        <div class="cakisan-ders flex w-full border border-textColor relative h-10 items-center bg-white mt-4 rounded-lg ">
+                            <div class="ders-kodu w-3/10 border-r flex items-center h-full px-2">
+                                <input type="text" name="dersler[1][kodu2]" placeholder="0000000" class="w-full placeholder-textColor outline-0">
+                            </div>
+                            <div class="ders-adi w-3/5 px-2 h-full flex border-r border-textColor items-center">
+                                <input type="text" name="dersler[1][adi2]" placeholder="Ders Adı" class="w-full placeholder-textColor outline-0">
+                            </div>
+                            <div class="grup w-3/10 px-2 h-full flex items-center">
+                                <input type="text" name="dersler[1][grubu]" placeholder="Grup" maxlength="3" class="w-full outline-0 placeholder-textColor">
+                            </div>
+                            <button class="cakisan-ders-cikar absolute right-2 p-2 cursor-pointer">
+                                <img src="assets/icon/Vector.png" alt="">
+                            </button>
+                        </div>
+                        <div id="cakisan-ders-ekle" class="cakisan-ders-ekle flex px-4 border py-2 rounded-full mt-4 text-headingBlue bg-white cursor-pointer justify-center hover:bg-white/10 duration-200">
+                            <p>Ders Ekle</p>
+                            <img src="" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mx-auto mt-12">
+                <button type="button" onclick="generatePDF()" class="flex w-full bg-bgColor space-x-4 px-8 border cursor-pointer justify-center items-center py-4 rounded-xl hover:bg-headingBlue duration-200">
+                    <p class="text-lg text-white">PDF Oluştur</p>
+                    <img src="" alt="">
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</form>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9322fa98cfa912d5',t:'MTc0NDk2NjkwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
+</html>

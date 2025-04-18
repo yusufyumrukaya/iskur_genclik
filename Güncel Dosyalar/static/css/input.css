@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme{
+    --color-skyBlue: #CBD8E6;
+    --color-headingBlue: #161179;
+    ----breakpoint-llg: 1162px;
+    --color-textColor: #0C2E95;
+    --color-placeholder: #1E1E1E;
+    --color-bgColor: #1744CB;
+    --color-underlineColor: #707070;
+}
+
+@media (min-width: 1162px){
+    .form{
+        @apply flex-row justify-center items-start;
+    }
+    
+}
+
+@media(max-width: 1162px){
+    .ders-ekle-buton{
+        @apply w-full;
+    }
+    .cakisan-ders-ekle{
+        @apply w-full
+    }
+}
